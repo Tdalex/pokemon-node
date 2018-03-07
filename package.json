@@ -1,0 +1,29 @@
+{
+  "name": "pokemon-node",
+  "version": "1.0.0",
+  "description": "pokemon-node",
+  "main": "app.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "image-downloader": "^3.3.0",
+    "jsonframe-cheerio": "^3.0.1",
+    "jsonwebtoken": "^8.2.0",
+    "mongoose": "^5.0.9",
+    "node-fetch": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tdalex/pokemon-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tdalex/pokemon-node/issues"
+  },
+  "homepage": "https://github.com/Tdalex/pokemon-node#readme"
+}

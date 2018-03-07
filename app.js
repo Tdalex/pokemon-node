@@ -7,6 +7,44 @@ const express   = require('express');
 const jwt       = require('jsonwebtoken');
 
 mongoose.connect("mongodb://localhost/pokedex");
+
+
+const pokemonSchema = mongoose.Schema({
+    nom    : String,
+    prenom : String,
+    age    : Number,
+    address: String
+  });
+
+const pokemon = mongoose.model("pokemon", pokemonSchema);
+
+// js
+
+
+
+// js
+// const pokemons = {
+//   _id,
+//   name,
+//   type,
+//   niveau,
+//   img,
+//   evolution: [{ niveauEvolution, evolutionName }]
+// };
+
+
+
+
+const userSchema = mongoose.Schema( {
+    _id,
+    name,
+    email,
+    password,
+    pokemonsCaptures: [_idPokemeon]
+  });
+const user = mongoose.model("user", userSchema);
+
+
 const app = express();
 
 // liste tous les pokemons
@@ -16,7 +54,7 @@ app.get('/pokemons', function(req, res){
 
 // recupere un pokemon
 app.get('/pokemons/:id', function(req, res){
-    res.send('hello world');
+    res.send('pokemon ' + req.params.id);
 });
 
 // ajoute un pokemon
