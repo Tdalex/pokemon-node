@@ -5,9 +5,11 @@ const jsonframe = require("jsonframe-cheerio");
 const download  = require("image-downloader");
 const express   = require('express');
 const jwt       = require('jsonwebtoken');
+const bodyParser = require('body-parser')
+const app = express();
 
 mongoose.connect("mongodb://localhost/pokedex");
-
+app.use(bodyParser.urlencoded({extended: true}));
 
 const pokemonSchema = mongoose.Schema({
     _id      : String,
@@ -29,8 +31,6 @@ const userSchema = mongoose.Schema( {
   });
 const user = mongoose.model("user", userSchema);
 
-
-const app = express();
 
 // liste tous les pokemons
 app.get('/pokemons', function(req, res){
