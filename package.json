@@ -4,6 +4,7 @@
   "description": "pokemon-node",
   "main": "app.js",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
     "image-downloader": "^3.3.0",
