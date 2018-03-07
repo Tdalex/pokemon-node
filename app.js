@@ -48,7 +48,15 @@ app.get('/pokemons', function(req, res){
 
 // recupere un pokemon
 app.get('/pokemons/:id', function(req, res){
-    res.send('pokemon ' + req.params.id);
+    Pokemon.findOne({ '_id': req.params.id }, (err, pokemons) => {
+        if (err){
+            console.log(err);
+            res.send(err);
+        } else {
+            console.log(pokemons);
+            res.send(pokemons);
+        }
+    });
 });
 
 // ajoute un pokemon
@@ -98,31 +106,59 @@ app.put('/pokemons/:id', function(req, res){
         evolution: evolutions
       };
 
-    Pokemon.create(editPokemon, (err, doc) => {
-        if (err){
-            console.log(err)
-            res.send(err);
-        } else{
-            console.log(query.name + " a été modifié", doc);
-            res.send(query.name + " a été modifié");
-        }
-      });
+    id = req.params.id;
+
+    Pokemon.update({_id  : ObjectId(id)}, {$set: editPokemon});
+    res.send('hello world');
 });
 
 // modifie un champ d'un pokemon
 app.patch('/pokemons/:id', function(req, res){
-    res.send('hello world');
+    let query         = req.body;
+    let evolutions    = [];
+    let updatePokemon = {};
+
+    if(query.evolutions !== undefined){
+        query.evolution.forEach(async el => {
+            evolutions.push({'niveau': el.niveau, '_id': el.id});
+        });
+    }
+
+    if(query.name !== undefined){
+        updatePokemon.name = query.name;
+    }
+
+    if(evolutions.length > 0){
+        updatePokemon.evolution = evolutions;
+    }
+
+    if(query.id !== undefined){
+        updatePokemon._id = query.id;
+        updatePokemon.img = './img/' + query.id + '.png';
+    }
+
+    if(query.types !== undefined){
+        updatePokemon.types = query.types;
+    }
+
+    if(query.niveau !== undefined){
+        updatePokemon.niveau = query.niveau;
+    }
+
+    Pokemon.update({_id  : req.params.id}, {$set: updatePokemon}, function(err, doc) {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            console.log(updatePokemon);
+            res.send(updatePokemon);
+        }
+      });
 });
 
 // supprime un pokemon
 app.delete('/pokemons/:id', function(req, res){
     res.send('hello world');
 });
-
-
-
-
-
-
 
 app.listen(3000);
