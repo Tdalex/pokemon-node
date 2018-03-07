@@ -73,7 +73,7 @@ app.post('/pokemons', function(req, res){
         name     : query.name,
         types    : query.types,
         niveau   : query.niveau,
-        img      : './img/' + id + '.png',
+        img      : query.img,
         evolution: evolutions
       };
 
@@ -102,7 +102,7 @@ app.put('/pokemons/:id', function(req, res){
         name     : query.name,
         types    : query.types,
         niveau   : query.niveau,
-        img      : './img/' + id + '.png',
+        img      : query.img,
         evolution: evolutions
       };
 
@@ -139,7 +139,10 @@ app.patch('/pokemons/:id', function(req, res){
 
     if(query.numero !== undefined){
         updatePokemon.numero = query.numero;
-        updatePokemon.img    = './img/' + query.numero + '.png';
+    }
+
+    if(query.img !== undefined){
+        updatePokemon.img = query.img;
     }
 
     if(query.types !== undefined){
