@@ -177,4 +177,40 @@ app.delete('/pokemons/:id', function(req, res){
     });
 });
 
+// liste tous les users
+app.get('/users', function(req, res){
+    User.find((err, users) => {
+        if (err){
+            console.log(err);
+            res.send(err);
+        } else {
+            console.log(users);
+            res.send(users);
+        }
+    });
+});
+
+// ajoute un user
+app.post('/users', function(req, res){
+    let query = req.body;
+    let id    = query.id;
+
+    let newUser = {
+        _id             : id,
+        name            : query.name,
+        email           : query.email,
+        password        : query.password,
+        pokemonsCaptures: []
+      };
+
+    Pokemon.create(newUser, (err, doc) => {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            res.send({"success": true});
+        }
+      });
+});
+
 app.listen(3000);
