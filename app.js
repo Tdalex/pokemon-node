@@ -4,6 +4,7 @@ const cheerio    = require("cheerio");
 const jsonframe  = require("jsonframe-cheerio");
 const download   = require("image-downloader");
 const express    = require('express');
+const passport   = require('passport');
 const jwt        = require('jsonwebtoken');
 const bodyParser = require('body-parser')
 const app        = express();
@@ -13,22 +14,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 const pokemonSchema = mongoose.Schema({
-    _id      : Number,
+    numero   : Number,
     name     : String,
     types    : [{type: String}],
     niveau   : Number,
     img      : String,
-    evolution: [{ niveau: Number, _id: Number}]
+    evolution: [{ niveau: Number, numero: Number}]
 });
 
 const Pokemon = mongoose.model("pokemon", pokemonSchema);
 
 const userSchema = mongoose.Schema( {
-    _id             : Number,
     name            : String,
     email           : String,
     password        : String,
-    pokemonsCaptures: [{_idPokemeon: Number}]
+    pokemonsCaptures: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pokemon" }]
   });
 const User = mongoose.model("user", userSchema);
 
@@ -48,7 +48,7 @@ app.get('/pokemons', function(req, res){
 
 // recupere un pokemon
 app.get('/pokemons/:id', function(req, res){
-    Pokemon.findOne({ '_id': req.params.id }, (err, pokemons) => {
+    Pokemon.findOne({ 'numero': req.params.id }, (err, pokemons) => {
         if (err){
             console.log(err);
             res.send(err);
@@ -62,14 +62,14 @@ app.get('/pokemons/:id', function(req, res){
 // ajoute un pokemon
 app.post('/pokemons', function(req, res){
     let query      = req.body;
-    let id         = query.id;
+    let id         = query.numero;
     let evolutions = [];
     query.evolution.forEach(async el => {
-        evolutions.push({'niveau': el.niveau, '_id': el.id});
+        evolutions.push({'niveau': el.niveau, 'numero': el.numero});
     });
 
     let newPokemon = {
-        _id      : id,
+        numero   : id,
         name     : query.name,
         types    : query.types,
         niveau   : query.niveau,
@@ -91,14 +91,14 @@ app.post('/pokemons', function(req, res){
 // modifie un pokemon
 app.put('/pokemons/:id', function(req, res){
     let query      = req.body;
-    let id         = query.id;
+    let id         = query.numero;
     let evolutions = [];
     query.evolution.forEach(async el => {
-        evolutions.push({'niveau': el.niveau, '_id': el.id});
+        evolutions.push({'niveau': el.niveau, 'numero': el.numero});
     });
 
     let editPokemon = {
-        _id      : id,
+        numero   : id,
         name     : query.name,
         types    : query.types,
         niveau   : query.niveau,
@@ -106,9 +106,7 @@ app.put('/pokemons/:id', function(req, res){
         evolution: evolutions
       };
 
-    id = req.params.id;
-
-    Pokemon.update({_id  : req.params.id}, {$set: editPokemon}, function(err, doc) {
+    Pokemon.update({numero  : req.params.id}, {$set: editPokemon}, function(err, doc) {
         if (err){
             console.log(err)
             res.send(err);
@@ -127,7 +125,7 @@ app.patch('/pokemons/:id', function(req, res){
 
     if(query.evolutions !== undefined){
         query.evolution.forEach(async el => {
-            evolutions.push({'niveau': el.niveau, '_id': el.id});
+            evolutions.push({'niveau': el.niveau, 'numero': el.numero});
         });
     }
 
@@ -139,9 +137,9 @@ app.patch('/pokemons/:id', function(req, res){
         updatePokemon.evolution = evolutions;
     }
 
-    if(query.id !== undefined){
-        updatePokemon._id = query.id;
-        updatePokemon.img = './img/' + query.id + '.png';
+    if(query.numero !== undefined){
+        updatePokemon.numero = query.numero;
+        updatePokemon.img    = './img/' + query.numero + '.png';
     }
 
     if(query.types !== undefined){
@@ -152,7 +150,7 @@ app.patch('/pokemons/:id', function(req, res){
         updatePokemon.niveau = query.niveau;
     }
 
-    Pokemon.update({_id  : req.params.id}, {$set: updatePokemon}, function(err, doc) {
+    Pokemon.update({numero  : req.params.id}, {$set: updatePokemon}, function(err, doc) {
         if (err){
             console.log(err)
             res.send(err);
@@ -165,7 +163,7 @@ app.patch('/pokemons/:id', function(req, res){
 
 // supprime un pokemon
 app.delete('/pokemons/:id', function(req, res){
-    Pokemon.findOne({ '_id': req.params.id }, (err, pokemon) => {
+    Pokemon.findOne({ 'numero': req.params.id }, (err, pokemon) => {
         if (err){
             console.log(err);
             res.send(err);
@@ -193,17 +191,15 @@ app.get('/users', function(req, res){
 // ajoute un user
 app.post('/users', function(req, res){
     let query = req.body;
-    let id    = query.id;
 
     let newUser = {
-        _id             : id,
         name            : query.name,
         email           : query.email,
         password        : query.password,
         pokemonsCaptures: []
       };
 
-    Pokemon.create(newUser, (err, doc) => {
+    User.create(newUser, (err, doc) => {
         if (err){
             console.log(err)
             res.send(err);
@@ -212,5 +208,126 @@ app.post('/users', function(req, res){
         }
       });
 });
+
+// recupere les pokemons d'un user
+app.get('/users/:id/pokemons', verifyToken, (req, res) => {
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
+                if (err){
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    Pokemon.find({ '_id': { "$in" : pokemons.pokemonsCaptures} }, (err, pokemons) => {
+                        if (err){
+                            console.log(err);
+                            res.send(err);
+                        } else {
+                            res.send(pokemons);
+                        }
+                    });
+                    // res.send(pokemons.pokemonsCaptures);
+                }
+            });
+        }
+    });
+});
+
+
+// ajoute un user
+app.post('/users', function(req, res){
+    let query = req.body;
+
+    let newUser = {
+        name            : query.name,
+        email           : query.email,
+        password        : query.password,
+        pokemonsCaptures: []
+      };
+
+    User.create(newUser, (err, doc) => {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            res.send({"success": true});
+        }
+      });
+});
+
+// ajoute un pokemon a un user
+app.post('/users/:id/pokemons', verifyToken, (req, res) => {
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
+                if (err){
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    let userPokemons = pokemons.pokemonsCaptures;
+                    let poke         = userPokemons.concat(req.body.pokemonsCaptures);
+
+                    User.update({_id  : req.params.id}, {$set: {pokemonsCaptures: poke}}, function(err, doc) {
+                        if (err){
+                            console.log(err)
+                            res.send(err);
+                        } else{
+                            res.send({'success': true});
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+// recupere un pokemon d'un user
+app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            Pokemon.findOne({ '_id': req.params.pokeId }, (err, pokemons) => {
+                if (err){
+                    console.log(err);
+                    res.send(err);
+                } else {
+                    console.log(pokemons);
+                    res.send(pokemons);
+                }
+            });
+        }
+    });
+});
+
+// recuperation du token
+app.post('/users/login', (req, res) => {
+    const user = req.body;
+
+    jwt.sign({user}, 'secretkey', { expiresIn: '24h' }, (err, token) => {
+        res.json({token});
+    });
+});
+
+
+// FORMAT OF TOKEN
+// Authorization: Bearer <access_token>
+
+// Verify Token
+function verifyToken(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+    if(typeof bearerHeader !== 'undefined') {
+      const bearer      = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+            req.token   = bearerToken;
+      next();
+    } else {
+      res.sendStatus(403);
+    }
+}
 
 app.listen(3000);
