@@ -12,7 +12,7 @@ mongoose.connect("mongodb://localhost/pokedex");
 const pokemonSchema = mongoose.Schema({
     _id      : String,
     name     : String,
-    types    : [String],
+    types    : [{type: String}],
     niveau   : String,
     img      : String,
     evolution: [{ niveau: Number, name: String}]

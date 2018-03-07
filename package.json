@@ -10,7 +10,8 @@
     "jsonframe-cheerio": "^3.0.1",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.9",
-    "node-fetch": "^2.1.1"
+    "node-fetch": "^2.1.1",
+    "nodemon": "^1.17.1"
   },
   "devDependencies": {},
   "scripts": {
