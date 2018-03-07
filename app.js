@@ -10,39 +10,24 @@ mongoose.connect("mongodb://localhost/pokedex");
 
 
 const pokemonSchema = mongoose.Schema({
-    nom    : String,
-    prenom : String,
-    age    : Number,
-    address: String
-  });
+    _id      : String,
+    name     : String,
+    types    : [String],
+    niveau   : String,
+    img      : String,
+    evolution: [{ niveau: Number, name: String}]
+});
 
 const pokemon = mongoose.model("pokemon", pokemonSchema);
 
-// js
-
-
-
-// js
-// const pokemons = {
-//   _id,
-//   name,
-//   type,
-//   niveau,
-//   img,
-//   evolution: [{ niveauEvolution, evolutionName }]
-// };
-
-
-
-
-// const userSchema = mongoose.Schema( {
-//     _id,
-//     name,
-//     email,
-//     password,
-//     pokemonsCaptures: [_idPokemeon]
-//   });
-// const user = mongoose.model("user", userSchema);
+const userSchema = mongoose.Schema( {
+    _id             : String,
+    name            : String,
+    email           : String,
+    password        : String,
+    pokemonsCaptures: [{_idPokemeon: String}]
+  });
+const user = mongoose.model("user", userSchema);
 
 
 const app = express();
