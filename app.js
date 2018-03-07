@@ -108,8 +108,15 @@ app.put('/pokemons/:id', function(req, res){
 
     id = req.params.id;
 
-    Pokemon.update({_id  : ObjectId(id)}, {$set: editPokemon});
-    res.send('hello world');
+    Pokemon.update({_id  : req.params.id}, {$set: editPokemon}, function(err, doc) {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            console.log(editPokemon);
+            res.send({'success': true});
+        }
+    });
 });
 
 // modifie un champ d'un pokemon
@@ -151,14 +158,23 @@ app.patch('/pokemons/:id', function(req, res){
             res.send(err);
         } else{
             console.log(updatePokemon);
-            res.send(updatePokemon);
+            res.send({'success': true});
         }
-      });
+    });
 });
 
 // supprime un pokemon
 app.delete('/pokemons/:id', function(req, res){
-    res.send('hello world');
+    Pokemon.findOne({ '_id': req.params.id }, (err, pokemon) => {
+        if (err){
+            console.log(err);
+            res.send(err);
+        } else {
+            let name = pokemon.name;
+            pokemon.remove();
+            res.send(name + " a été supprimé");
+        }
+    });
 });
 
 app.listen(3000);
