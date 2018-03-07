@@ -35,7 +35,15 @@ const User = mongoose.model("user", userSchema);
 
 // liste tous les pokemons
 app.get('/pokemons', function(req, res){
-    res.send('hello world');
+    Pokemon.find((err, pokemons) => {
+        if (err){
+            console.log(err);
+            res.send(err);
+        } else {
+            console.log(pokemons);
+            res.send(pokemons);
+        }
+    });
 });
 
 // recupere un pokemon
@@ -45,7 +53,6 @@ app.get('/pokemons/:id', function(req, res){
 
 // ajoute un pokemon
 app.post('/pokemons', function(req, res){
-    // console.log(req.body);
     let query      = req.body;
     let id         = query.id;
     let evolutions = [];
@@ -62,18 +69,44 @@ app.post('/pokemons', function(req, res){
         evolution: evolutions
       };
 
-    res.send(query);
-    Pokemon.create( newPokemon, (err, doc) => {
-        if (err) console.log(err);
-        console.log("pokemon créer", doc);
+    Pokemon.create(newPokemon, (err, doc) => {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            console.log(query.name + " ajouté dans le pokedex", doc);
+            res.send(query.name + " ajouté dans le pokedex");
+        }
       });
-
-    res.send(query);
 });
 
 // modifie un pokemon
 app.put('/pokemons/:id', function(req, res){
-    res.send('hello world');
+    let query      = req.body;
+    let id         = query.id;
+    let evolutions = [];
+    query.evolution.forEach(async el => {
+        evolutions.push({'niveau': el.niveau, '_id': el.id});
+    });
+
+    let editPokemon = {
+        _id      : id,
+        name     : query.name,
+        types    : query.types,
+        niveau   : query.niveau,
+        img      : './img/' + id + '.png',
+        evolution: evolutions
+      };
+
+    Pokemon.create(editPokemon, (err, doc) => {
+        if (err){
+            console.log(err)
+            res.send(err);
+        } else{
+            console.log(query.name + " a été modifié", doc);
+            res.send(query.name + " a été modifié");
+        }
+      });
 });
 
 // modifie un champ d'un pokemon
