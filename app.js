@@ -58,7 +58,7 @@ app.post('/pokemons', function(req, res){
         name     : query.name,
         types    : query.types,
         niveau   : query.niveau,
-        img      : './img/' . id,
+        img      : './img/' + id + '.png',
         evolution: evolutions
       };
 
