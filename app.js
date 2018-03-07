@@ -35,14 +35,14 @@ const pokemon = mongoose.model("pokemon", pokemonSchema);
 
 
 
-const userSchema = mongoose.Schema( {
-    _id,
-    name,
-    email,
-    password,
-    pokemonsCaptures: [_idPokemeon]
-  });
-const user = mongoose.model("user", userSchema);
+// const userSchema = mongoose.Schema( {
+//     _id,
+//     name,
+//     email,
+//     password,
+//     pokemonsCaptures: [_idPokemeon]
+//   });
+// const user = mongoose.model("user", userSchema);
 
 
 const app = express();
