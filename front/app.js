@@ -1,13 +1,8 @@
-const mongoose = require("mongoose");
-const fetch      = require("node-fetch");
-const cheerio    = require("cheerio");
-const jsonframe  = require("jsonframe-cheerio");
-const download   = require("image-downloader");
-const express    = require('express');
-const passport   = require('passport');
-const jwt        = require('jsonwebtoken');
-const bodyParser = require('body-parser')
-const app        = express();
+const mongoose = require("mongoose"),
+      fetch           = require("node-fetch"),
+      bodyParser      = require('body-parser'),
+      express         = require('express'),
+      app             = express()
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -16,29 +11,47 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 app.get('/pokemons', (req, res) => {
+    console.log('res: ' +res);
     fetch("http://localhost:3000/pokemons")
-    .then(Pokemon.find((err, pokemons) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
-        } else {
-            console.log(pokemons);
-            res.render("home", {pokemons: pokemons});
-        }
-    }));
+    .then(res => res.json())
+    .then((json) => {
+            console.log(json);
+            res.render("home", {pokemons: json});  
+    });
+});
+
+app.get('/pokemons/new', (req, res) => {
+    fetch('http://localhost:3000/pokemons/new')
+    .then(( ) => {
+            res.render("new");     
+    })
+});
+
+app.post('/pokemons', (req, res) => {
+    console.log(req.body)
+     fetch('http://localhost:3000/pokemons', {
+         method: "POST",
+         headers : {
+             'Accept': 'applicaton/json',
+             'Content-Type': 'application/json'
+         },
+          body: JSON.stringify(req.body)
+        })
+        .then(res => res.json())
+        .then((json) => {
+                console.log(json);
+                res.redirect("/pokemons");  
+        });
 });
 
 app.get('/pokemons/:id', (req, res) => {
-    fetch("http://localhost:3000/pokemons/:id")
-    .then(Pokemon.findOne({ 'numero': req.params.id }, (err, pokemons) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
-        } else {
-            console.log(pokemons);
-            res.render("show", {pokemons: pokemons});
-        }
-    }));
+    const id = req.params.id;
+    fetch('http://localhost:3000/pokemons/'+ id)
+    .then(res => res.json())
+    .then((json ) => {
+            console.log(json);
+            res.render("show", {pokemon: json});     
+    })
 });
 
 app.listen(3001);

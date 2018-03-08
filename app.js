@@ -23,6 +23,7 @@ app.use((req, res, next) => {
     next();
   });
 
+
 // liste tous les pokemons
 app.get('/pokemons', function(req, res){
     Pokemon.find({}, (err, pokemons) => {
