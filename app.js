@@ -358,10 +358,19 @@ app.delete('/users/:id/pokemons/:pokeId', verifyToken, function(req, res){
 
 // recuperation du token
 app.post('/users/login', (req, res) => {
-    const user = req.body;
-
-    jwt.sign({user}, 'secretkey', { expiresIn: '24h' }, (err, token) => {
-        res.json({token});
+    User.findOne({'email': req.body.email, 'password': req.body.password }, (err, user) => {
+        if (err){
+            console.log(err);
+            res.json({"success": false, "error": err});
+        } else {
+            if(user){
+                jwt.sign({user}, 'secretkey', { expiresIn: '24h' }, (err, token) => {
+                    res.json({token});
+                });
+            }else{
+              res.sendStatus(403);
+            }
+        }
     });
 });
 
