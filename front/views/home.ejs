@@ -1,0 +1,9 @@
+<h1>This is the Home with all the pokemons on the databases</h1>
+
+<% pokemons.forEach(function(pokemon){ %>
+    <h3><%=pokemon.name%></h3>
+    <a href="/pokemons/<%= pokemon._id %>">
+        <image height="300px" width="300px" src="<%=pokemon.img%>">
+    </a>
+    <!-- <p><%=pokemon.description%></p> -->
+<% }); %>

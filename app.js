@@ -1,42 +1,31 @@
-const mongoose = require("mongoose");
-const fetch      = require("node-fetch");
-const cheerio    = require("cheerio");
-const jsonframe  = require("jsonframe-cheerio");
-const download   = require("image-downloader");
-const express    = require('express');
-const passport   = require('passport');
-const jwt        = require('jsonwebtoken');
-const bodyParser = require('body-parser')
-const app        = express();
+const mongoose = require("mongoose"),
+      fetch      = require("node-fetch"),
+      cheerio    = require("cheerio"),
+      jsonframe  = require("jsonframe-cheerio"),
+      download   = require("image-downloader"),
+      express    = require('express'),
+      passport   = require('passport'),
+      jwt        = require('jsonwebtoken'),
+      bodyParser = require('body-parser'),
+      app        = express(),
+      Pokemon    = require('./models/Pokemon'),
+ CapturedPokemon = require('./models/CapturedPokemon'),
+      User       = require('./models/User')
+
+
 
 mongoose.connect("mongodb://localhost/pokedex");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
-const pokemonSchema = mongoose.Schema({
-    numero   : Number,
-    name     : String,
-    types    : [{type: String}],
-    niveau   : Number,
-    img      : String,
-    evolution: [{ niveau: Number, numero: Number}]
-});
-
-const Pokemon         = mongoose.model("pokemon", pokemonSchema);
-const CapturedPokemon = mongoose.model("capturedPokemon", pokemonSchema);
-
-const userSchema = mongoose.Schema( {
-    name            : String,
-    email           : String,
-    password        : String,
-    pokemonsCaptures: [{ type: mongoose.Schema.Types.ObjectId, ref: "capturedPokemonSchema" }]
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
   });
-const User = mongoose.model("user", userSchema);
-
 
 // liste tous les pokemons
 app.get('/pokemons', function(req, res){
-    Pokemon.find((err, pokemons) => {
+    Pokemon.find({}, (err, pokemons) => {
         if (err){
             console.log(err);
             res.json({"success": false, "error": err});
