@@ -1,3 +1,7 @@
 <h1>Nom: <%=pokemon.name%></h1>
 <h1>Niveau: <%=pokemon.niveau%></h1>
 <img src="<%= pokemon.img %>">
+
+<form action="/pokemons/<%=pokemon.numero %>?_method=DELETE" method="POST">
+    <button>Delete</button>
+</form>
