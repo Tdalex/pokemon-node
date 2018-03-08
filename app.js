@@ -22,13 +22,14 @@ const pokemonSchema = mongoose.Schema({
     evolution: [{ niveau: Number, numero: Number}]
 });
 
-const Pokemon = mongoose.model("pokemon", pokemonSchema);
+const Pokemon         = mongoose.model("pokemon", pokemonSchema);
+const CapturedPokemon = mongoose.model("capturedPokemon", pokemonSchema);
 
 const userSchema = mongoose.Schema( {
     name            : String,
     email           : String,
     password        : String,
-    pokemonsCaptures: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pokemon" }]
+    pokemonsCaptures: [{ type: mongoose.Schema.Types.ObjectId, ref: "capturedPokemonSchema" }]
   });
 const User = mongoose.model("user", userSchema);
 
@@ -38,10 +39,10 @@ app.get('/pokemons', function(req, res){
     Pokemon.find((err, pokemons) => {
         if (err){
             console.log(err);
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else {
             console.log(pokemons);
-            res.send(pokemons);
+            res.json(pokemons);
         }
     });
 });
@@ -51,115 +52,55 @@ app.get('/pokemons/:id', function(req, res){
     Pokemon.findOne({ 'numero': req.params.id }, (err, pokemons) => {
         if (err){
             console.log(err);
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else {
             console.log(pokemons);
-            res.send(pokemons);
+            res.json(pokemons);
         }
     });
 });
 
 // ajoute un pokemon
 app.post('/pokemons', function(req, res){
-    let query      = req.body;
-    let id         = query.numero;
-    let evolutions = [];
-    query.evolution.forEach(async el => {
-        evolutions.push({'niveau': el.niveau, 'numero': el.numero});
-    });
+    let query = req.body;
 
-    let newPokemon = {
-        numero   : id,
-        name     : query.name,
-        types    : query.types,
-        niveau   : query.niveau,
-        img      : query.img,
-        evolution: evolutions
-      };
-
-    Pokemon.create(newPokemon, (err, doc) => {
+    Pokemon.create(query, (err, doc) => {
         if (err){
             console.log(err)
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else{
             console.log(query.name + " ajouté dans le pokedex", doc);
-            res.send(query.name + " ajouté dans le pokedex");
+            res.json(query.name + " ajouté dans le pokedex");
         }
-      });
+    });
 });
 
 // modifie un pokemon
 app.put('/pokemons/:id', function(req, res){
-    let query      = req.body;
-    let id         = query.numero;
-    let evolutions = [];
-    query.evolution.forEach(async el => {
-        evolutions.push({'niveau': el.niveau, 'numero': el.numero});
-    });
+    let query = req.body;
 
-    let editPokemon = {
-        numero   : id,
-        name     : query.name,
-        types    : query.types,
-        niveau   : query.niveau,
-        img      : query.img,
-        evolution: evolutions
-      };
-
-    Pokemon.update({numero  : req.params.id}, {$set: editPokemon}, function(err, doc) {
+    Pokemon.update({numero  : req.params.id}, {$set: query}, function(err, doc) {
         if (err){
             console.log(err)
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else{
-            console.log(editPokemon);
-            res.send({'success': true});
+            console.log(query);
+            res.json({"success": true});
         }
     });
 });
 
 // modifie un champ d'un pokemon
 app.patch('/pokemons/:id', function(req, res){
-    let query         = req.body;
-    let evolutions    = [];
-    let updatePokemon = {};
+    let query = req.body;
 
-    if(query.evolutions !== undefined){
-        query.evolution.forEach(async el => {
-            evolutions.push({'niveau': el.niveau, 'numero': el.numero});
-        });
-    }
-
-    if(query.name !== undefined){
-        updatePokemon.name = query.name;
-    }
-
-    if(evolutions.length > 0){
-        updatePokemon.evolution = evolutions;
-    }
-
-    if(query.numero !== undefined){
-        updatePokemon.numero = query.numero;
-    }
-
-    if(query.img !== undefined){
-        updatePokemon.img = query.img;
-    }
-
-    if(query.types !== undefined){
-        updatePokemon.types = query.types;
-    }
-
-    if(query.niveau !== undefined){
-        updatePokemon.niveau = query.niveau;
-    }
-
-    Pokemon.update({numero  : req.params.id}, {$set: updatePokemon}, function(err, doc) {
+    Pokemon.update({numero  : req.params.id}, {$set: query}, function(err, doc) {
         if (err){
             console.log(err)
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else{
-            console.log(updatePokemon);
-            res.send({'success': true});
+            console.log(query);
+            res.json({"success": true});
         }
     });
 });
@@ -169,11 +110,11 @@ app.delete('/pokemons/:id', function(req, res){
     Pokemon.findOne({ 'numero': req.params.id }, (err, pokemon) => {
         if (err){
             console.log(err);
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else {
             let name = pokemon.name;
             pokemon.remove();
-            res.send(name + " a été supprimé");
+            res.json(name + " a été supprimé");
         }
     });
 });
@@ -183,10 +124,10 @@ app.get('/users', function(req, res){
     User.find((err, users) => {
         if (err){
             console.log(err);
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else {
             console.log(users);
-            res.send(users);
+            res.json(users);
         }
     });
 });
@@ -205,9 +146,9 @@ app.post('/users', function(req, res){
     User.create(newUser, (err, doc) => {
         if (err){
             console.log(err)
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else{
-            res.send({"success": true});
+            res.json({"success": true});
         }
       });
 });
@@ -221,17 +162,16 @@ app.get('/users/:id/pokemons', verifyToken, (req, res) => {
             User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
                 if (err){
                     console.log(err);
-                    res.send(err);
+                    res.json({"success": false, "error": err});
                 } else {
-                    Pokemon.find({ '_id': { "$in" : pokemons.pokemonsCaptures} }, (err, pokemons) => {
+                    CapturedPokemon.find({ '_id': { "$in" : pokemons.pokemonsCaptures} }, (err, pokemons) => {
                         if (err){
                             console.log(err);
-                            res.send(err);
+                            res.json({"success": false, "error": err});
                         } else {
-                            res.send(pokemons);
+                            res.json(pokemons);
                         }
                     });
-                    // res.send(pokemons.pokemonsCaptures);
                 }
             });
         }
@@ -253,9 +193,9 @@ app.post('/users', function(req, res){
     User.create(newUser, (err, doc) => {
         if (err){
             console.log(err)
-            res.send(err);
+            res.json({"success": false, "error": err});
         } else{
-            res.send({"success": true});
+            res.json({"success": true});
         }
       });
 });
@@ -269,17 +209,39 @@ app.post('/users/:id/pokemons', verifyToken, (req, res) => {
             User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
                 if (err){
                     console.log(err);
-                    res.send(err);
+                    res.json({"success": false, "error": err});
                 } else {
                     let userPokemons = pokemons.pokemonsCaptures;
-                    let poke         = userPokemons.concat(req.body.pokemonsCaptures);
-
-                    User.update({_id  : req.params.id}, {$set: {pokemonsCaptures: poke}}, function(err, doc) {
+                    Pokemon.findOne({ 'numero': req.body.pokemonsCaptures }, (err, pokemon) => {
                         if (err){
-                            console.log(err)
-                            res.send(err);
-                        } else{
-                            res.send({'success': true});
+                            console.log(err);
+                            res.json({"success": false, "error": err});
+                        } else {
+                            let newPoke = {
+                                numero   : pokemon.numero,
+                                name     : pokemon.name,
+                                types    : pokemon.types,
+                                niveau   : pokemon.niveau,
+                                img      : pokemon.img,
+                                evolution: pokemon.evolution
+                            };
+
+                            CapturedPokemon.create(newPoke, (err, pokemon) => {
+                                if (err){
+                                    console.log(err);
+                                    res.json({"success": false, "error": err});
+                                } else{
+                                    let poke = userPokemons.concat([pokemon._id]);
+                                    User.update({_id  : req.params.id}, {$set: {pokemonsCaptures: poke}}, function(err, doc) {
+                                        if (err){
+                                            console.log(err)
+                                            res.json({"success": false, "error": err});
+                                        } else{
+                                            res.json({"success": true});
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
                 }
@@ -297,10 +259,10 @@ app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
             Pokemon.findOne({ '_id': req.params.pokeId }, (err, pokemons) => {
                 if (err){
                     console.log(err);
-                    res.send(err);
+                    res.json({"success": false, "error": err});
                 } else {
                     console.log(pokemons);
-                    res.send(pokemons);
+                    res.json(pokemons);
                 }
             });
         }
