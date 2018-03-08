@@ -1,16 +1,16 @@
 const mongoose = require("mongoose"),
-      fetch      = require("node-fetch"),
-      cheerio    = require("cheerio"),
-      jsonframe  = require("jsonframe-cheerio"),
-      download   = require("image-downloader"),
-      express    = require('express'),
-      passport   = require('passport'),
-      jwt        = require('jsonwebtoken'),
-      bodyParser = require('body-parser'),
-      app        = express(),
-      Pokemon    = require('./models/Pokemon'),
- CapturedPokemon = require('./models/CapturedPokemon'),
-      User       = require('./models/User')
+      fetch           = require("node-fetch"),
+      cheerio         = require("cheerio"),
+      jsonframe       = require("jsonframe-cheerio"),
+      download        = require("image-downloader"),
+      express         = require('express'),
+      passport        = require('passport'),
+      jwt             = require('jsonwebtoken'),
+      bodyParser      = require('body-parser'),
+      app             = express(),
+      Pokemon         = require('./models/Pokemon'),
+      CapturedPokemon = require('./models/CapturedPokemon'),
+      User            = require('./models/User')
 
 
 
@@ -354,7 +354,14 @@ app.post('/users/login', (req, res) => {
         } else {
             if(user){
                 jwt.sign({user}, 'secretkey', { expiresIn: '24h' }, (err, token) => {
-                    res.json({token});
+                    User.update({_id  : user._id}, {$set: {accessToken: token}}, function(err, doc) {
+                        if (err){
+                            console.log(err)
+                            res.json({"success": false, "error": err});
+                        } else{
+                            res.json({token});
+                        }
+                    });
                 });
             }else{
               res.sendStatus(403);
@@ -371,12 +378,23 @@ app.post('/users/login', (req, res) => {
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
     if(typeof bearerHeader !== 'undefined') {
-      const bearer      = bearerHeader.split(' ');
-      const bearerToken = bearer[1];
-            req.token   = bearerToken;
-      next();
+        const bearer      = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+              req.token   = bearerToken;
+        User.findOne({ 'accessToken': bearerToken }, (err, user) => {
+            if (err){
+                console.log(err);
+                res.json({"success": false, "error": err});
+            } else {
+                if(user){
+                    next();
+                } else {
+                    res.sendStatus(403);
+                }
+            }
+        });
     } else {
-      res.sendStatus(403);
+        res.sendStatus(403);
     }
 }
 
