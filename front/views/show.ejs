@@ -1,7 +1,18 @@
-<h1>Nom: <%=pokemon.name%></h1>
-<h1>Niveau: <%=pokemon.niveau%></h1>
-<img src="<%= pokemon.img %>">
+<% include partials/header %>
 
-<form action="/pokemons/<%=pokemon.numero %>?_method=DELETE" method="POST">
-    <button>Delete</button>
-</form>
+<div class="col-md-12">
+            <div class="thumbnail">
+            <h3>Nom : <%=pokemon.name%></h3>
+            <h3>Numero : <%=pokemon.numero%></h3>
+            <h3>Niveau : <%=pokemon.niveau%></h3>
+                <img class="img-responsive" src="<%= pokemon.img %>">
+                <div class="caption-full">
+                    <h4 class="pull-right"><%=pokemon.types %></h4>
+                </div>
+                <form action="/pokemons/<%=pokemon.numero %>?_method=DELETE" method="POST">
+                    <button class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+
+<% include partials/footer %>
