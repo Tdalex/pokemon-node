@@ -256,7 +256,7 @@ app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
         if(err) {
             res.sendStatus(403);
         } else {
-            Pokemon.findOne({ '_id': req.params.pokeId }, (err, pokemons) => {
+            CapturedPokemon.findOne({ '_id': req.params.pokeId }, (err, pokemons) => {
                 if (err){
                     console.log(err);
                     res.json({"success": false, "error": err});
@@ -265,6 +265,45 @@ app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
                     res.json(pokemons);
                 }
             });
+        }
+    });
+});
+
+// supprime un pokemon d'un user
+app.delete('/users/:id/pokemons/:pokeId', function(req, res){
+    User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
+        if (err){
+            console.log(err);
+            res.json({"success": false, "error": err});
+        } else {
+            let error        = [];
+            let userPokemons = pokemons.pokemonsCaptures;
+            CapturedPokemon.findOne({ '_id': req.params.pokeId }, (err, pokemon) => {
+                if (err){
+                    console.log(err);
+                    error.push(err);
+                } else {
+                    if( pokemon !== null)
+                        pokemon.remove();
+                }
+            });
+
+            for (var key in userPokemons) {
+                if (userPokemons[key] == req.params.pokeId) {
+                    userPokemons.splice(key, 1);
+                }
+            }
+            User.update({'_id'  : req.params.id}, {$set: {'pokemonsCaptures': userPokemons}}, function(err, doc) {
+                if (err){
+                    console.log(err);
+                    error.push(err);
+                } else{
+                    res.json({"success": true});
+                }
+            });
+            if (error.length > 0){
+                res.json({"success": false, "error": error});
+            }
         }
     });
 });
