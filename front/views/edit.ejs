@@ -1,0 +1,10 @@
+<h1>Edit pokemon here</h1>
+<h3>Pokemon ID: <%=pokemon._id%></h3>
+<img src="<%=pokemon.img%>">
+
+
+<form action="/pokemons/<%=pokemon._id %>?_method=PUT" method="POST">
+    <label for="name">Name: </label>
+    <input value="<%=pokemon.name%>" id="name" name="name">
+    <input type="submit" />
+</form>
