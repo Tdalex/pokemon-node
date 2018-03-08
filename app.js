@@ -270,70 +270,88 @@ app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
 });
 
 // modifie un pokemon d'un user
-app.put('/users/:id/pokemons/:pokeId', function(req, res){
-    let query = req.body;
+app.put('/users/:id/pokemons/:pokeId', verifyToken, function(req, res){
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            let query = req.body;
 
-    CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
-        if (err){
-            console.log(err)
-            res.json({"success": false, "error": err});
-        } else{
-            console.log(query);
-            res.json({"success": true});
+            CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
+                if (err){
+                    console.log(err)
+                    res.json({"success": false, "error": err});
+                } else{
+                    console.log(query);
+                    res.json({"success": true});
+                }
+            });
         }
     });
 });
 
 // modifie un champ d'un pokemon d'un user
-app.patch('/users/:id/pokemons/:pokeId', function(req, res){
-    let query = req.body;
+app.patch('/users/:id/pokemons/:pokeId', verifyToken, function(req, res){
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
+        } else {
+            let query = req.body;
 
-    CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
-        if (err){
-            console.log(err)
-            res.json({"success": false, "error": err});
-        } else{
-            console.log(query);
-            res.json({"success": true});
+            CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
+                if (err){
+                    console.log(err)
+                    res.json({"success": false, "error": err});
+                } else{
+                    console.log(query);
+                    res.json({"success": true});
+                }
+            });
         }
     });
 });
 
 // supprime un pokemon d'un user
-app.delete('/users/:id/pokemons/:pokeId', function(req, res){
-    User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
+app.delete('/users/:id/pokemons/:pokeId', verifyToken, function(req, res){
+    jwt.verify(req.token, 'secretkey', (err, authData) => {
+        if(err) {
+            res.sendStatus(403);
         } else {
-            let error        = [];
-            let userPokemons = pokemons.pokemonsCaptures;
-            CapturedPokemon.findOne({ '_id': req.params.pokeId }, (err, pokemon) => {
+            User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
                 if (err){
                     console.log(err);
-                    error.push(err);
+                    res.json({"success": false, "error": err});
                 } else {
-                    if( pokemon !== null)
-                        pokemon.remove();
-                }
-            });
+                    let error        = [];
+                    let userPokemons = pokemons.pokemonsCaptures;
+                    CapturedPokemon.findOne({ '_id': req.params.pokeId }, (err, pokemon) => {
+                        if (err){
+                            console.log(err);
+                            error.push(err);
+                        } else {
+                            if( pokemon !== null)
+                                pokemon.remove();
+                        }
+                    });
 
-            for (var key in userPokemons) {
-                if (userPokemons[key] == req.params.pokeId) {
-                    userPokemons.splice(key, 1);
-                }
-            }
-            User.update({'_id'  : req.params.id}, {$set: {'pokemonsCaptures': userPokemons}}, function(err, doc) {
-                if (err){
-                    console.log(err);
-                    error.push(err);
-                } else{
-                    res.json({"success": true});
+                    for (var key in userPokemons) {
+                        if (userPokemons[key] == req.params.pokeId) {
+                            userPokemons.splice(key, 1);
+                        }
+                    }
+                    User.update({'_id'  : req.params.id}, {$set: {'pokemonsCaptures': userPokemons}}, function(err, doc) {
+                        if (err){
+                            console.log(err);
+                            error.push(err);
+                        } else{
+                            res.json({"success": true});
+                        }
+                    });
+                    if (error.length > 0){
+                        res.json({"success": false, "error": error});
+                    }
                 }
             });
-            if (error.length > 0){
-                res.json({"success": false, "error": error});
-            }
         }
     });
 });
