@@ -269,6 +269,36 @@ app.get('/users/:id/pokemons/:pokeId', verifyToken, (req, res) => {
     });
 });
 
+// modifie un pokemon d'un user
+app.put('/users/:id/pokemons/:pokeId', function(req, res){
+    let query = req.body;
+
+    CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
+        if (err){
+            console.log(err)
+            res.json({"success": false, "error": err});
+        } else{
+            console.log(query);
+            res.json({"success": true});
+        }
+    });
+});
+
+// modifie un champ d'un pokemon d'un user
+app.patch('/users/:id/pokemons/:pokeId', function(req, res){
+    let query = req.body;
+
+    CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
+        if (err){
+            console.log(err)
+            res.json({"success": false, "error": err});
+        } else{
+            console.log(query);
+            res.json({"success": true});
+        }
+    });
+});
+
 // supprime un pokemon d'un user
 app.delete('/users/:id/pokemons/:pokeId', function(req, res){
     User.findOne({ '_id': req.params.id }, 'pokemonsCaptures', (err, pokemons) => {
