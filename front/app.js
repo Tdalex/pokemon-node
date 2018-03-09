@@ -2,10 +2,12 @@ const mongoose = require("mongoose"),
       fetch           = require("node-fetch"),
       bodyParser      = require('body-parser'),
       express         = require('express'),
-      app             = express()
+      app             = express(),
+      methodOverride  = require("method-override");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
 
 
 app.set("view engine", "ejs");
@@ -43,6 +45,24 @@ app.post('/pokemons', (req, res) => {
                 res.redirect("/pokemons");  
         });
 });
+
+app.delete('/pokemons/:id', (req, res) => {
+    const id = req.params.id;
+    console.log(req.body);
+    fetch('http://localhost:3000/pokemons/'+ id, {
+        method: "DELETE",
+        headers : {
+            'Accept': 'applicaton/json',
+            'Content-Type': 'application/json'
+        },
+         body: JSON.stringify(req.body)
+    })
+    .then(res => res.json())
+    .then((json ) => {
+            console.log(json);
+            res.redirect("/pokemons");     
+    })
+})
 
 app.get('/pokemons/:id', (req, res) => {
     const id = req.params.id;

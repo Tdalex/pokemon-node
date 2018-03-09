@@ -1,9 +1,31 @@
-<h1>This is the Home with all the pokemons on the databases</h1>
+<% include partials/header %>
 
-<% pokemons.forEach(function(pokemon){ %>
-    <h3><%=pokemon.name%></h3>
-    <a href="/pokemons/<%= pokemon.numero %>">
-        <image height="300px" width="300px" src="<%=pokemon.img%>">
-    </a>
-    <!-- <p><%=pokemon.description%></p> -->
-<% }); %>
+<header class="jumbotron">
+         <div class="container">
+             <h1>Welcome To Node Pokedex!</h1>
+             <h2>This is the Home with all the pokemons on the databases</h2>
+             <p>
+                <a class="btn btn-primary btn-large" href="/pokemons/new">Add New Pokemon</a>
+             </p>
+         </div>
+     </header>
+
+
+<div class="row text-center" style="display:flex; flex-wrap: wrap;">
+        <% pokemons.forEach(function(pokemon){ %>
+            <div class="col-md-3 col-sm-6">
+                <div class="thumbnail">
+                   <img src="<%= pokemon.img %>">
+                   <div class="caption">
+                       <h4><%= pokemon.name %></h4>
+                   </div>
+                   <p>
+                       <a href="/pokemons/<%= pokemon.numero %>" class="btn btn-primary">More Info</a>
+                   </p>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<% include partials/footer %>
