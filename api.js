@@ -6,7 +6,6 @@ const mongoose      = require("mongoose"),
     jsonframe  = require("jsonframe-cheerio"),
     download   = require("image-downloader"),
     passport   = require('passport'),
-    jwt        = require('jsonwebtoken'),
     bodyParser = require('body-parser');
 
 

@@ -2,7 +2,8 @@ var app = require('../api');
 
 const Pokemon         = require('../models/Pokemon'),
       CapturedPokemon = require('../models/CapturedPokemon'),
-      User            = require('../models/User');
+      User            = require('../models/User')
+      jwt             = require('jsonwebtoken');
 
 // liste tous les users
 app.get('/users', function(req, res){
@@ -161,7 +162,6 @@ app.put('/users/:id/pokemons/:pokeId', verifyToken, function(req, res){
             res.sendStatus(403);
         } else {
             let query = req.body;
-
             CapturedPokemon.update({'_id'  : req.params.pokeId}, {$set: query}, function(err, doc) {
                 if (err){
                     console.log(err)

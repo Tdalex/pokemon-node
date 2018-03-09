@@ -51,7 +51,7 @@ toutes ces routes seront privé
 GET users/:id/pokemons liste tous les pokemons
 GET users/:id/pokemons/:id récupéré un pokemon
 POST users/:id/pokemons créer un pokemon
-PUT users/:id/pokemons/:id modifie tous le user
+PUT users/:id/pokemons/:id modifie tous le pokemon
 PATCH users/:id/pokemons/:id modifie un champs du pokemons
 DELETE users/:id/pokemons/:id supprime le pokemon
 
