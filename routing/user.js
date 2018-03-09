@@ -1,113 +1,8 @@
-const mongoose = require("mongoose"),
-      fetch           = require("node-fetch"),
-      cheerio         = require("cheerio"),
-      jsonframe       = require("jsonframe-cheerio"),
-      download        = require("image-downloader"),
-      express         = require('express'),
-      passport        = require('passport'),
-      jwt             = require('jsonwebtoken'),
-      bodyParser      = require('body-parser'),
-      app             = express(),
-      Pokemon         = require('./models/Pokemon'),
-      CapturedPokemon = require('./models/CapturedPokemon'),
-      User            = require('./models/User')
+var app = require('../api');
 
-
-
-mongoose.connect("mongodb://localhost/pokedex");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-  });
-
-
-// liste tous les pokemons
-app.get('/pokemons', function(req, res){
-    Pokemon.find({}, (err, pokemons) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
-        } else {
-            console.log(pokemons);
-            res.json(pokemons);
-        }
-    });
-});
-
-// recupere un pokemon
-app.get('/pokemons/:id', function(req, res){
-    Pokemon.findOne({ 'numero': req.params.id }, (err, pokemons) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
-        } else {
-            console.log(pokemons);
-            res.json(pokemons);
-        }
-    });
-});
-
-// ajoute un pokemon
-app.post('/pokemons', function(req, res){
-    let query = req.body;
-
-    Pokemon.create(query, (err, doc) => {
-        if (err){
-            console.log(err)
-            res.json({"success": false, "error": err});
-        } else{
-            console.log(query.name + " ajouté dans le pokedex", doc);
-            res.json(query.name + " ajouté dans le pokedex");
-        }
-    });
-});
-
-// modifie un pokemon
-app.put('/pokemons/:id', function(req, res){
-    let query = req.body;
-
-    Pokemon.update({numero  : req.params.id}, {$set: query}, function(err, doc) {
-        if (err){
-            console.log(err)
-            res.json({"success": false, "error": err});
-        } else{
-            console.log(query);
-            res.json({"success": true});
-        }
-    });
-});
-
-// modifie un champ d'un pokemon
-app.patch('/pokemons/:id', function(req, res){
-    let query = req.body;
-
-    Pokemon.update({numero  : req.params.id}, {$set: query}, function(err, doc) {
-        if (err){
-            console.log(err)
-            res.json({"success": false, "error": err});
-        } else{
-            console.log(query);
-            res.json({"success": true});
-        }
-    });
-});
-
-// supprime un pokemon
-app.delete('/pokemons/:id', function(req, res){
-    Pokemon.findOne({ 'numero': req.params.id }, (err, pokemon) => {
-        if (err){
-            console.log(err);
-            res.json({"success": false, "error": err});
-        } else {
-            let name = pokemon.name;
-            pokemon.remove();
-            res.json(name + " a été supprimé");
-        }
-    });
-});
+const Pokemon         = require('../models/Pokemon'),
+      CapturedPokemon = require('../models/CapturedPokemon'),
+      User            = require('../models/User');
 
 // liste tous les users
 app.get('/users', function(req, res){
@@ -398,5 +293,3 @@ function verifyToken(req, res, next) {
         res.sendStatus(403);
     }
 }
-
-app.listen(3000);
